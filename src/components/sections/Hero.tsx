@@ -59,7 +59,7 @@ export function Hero() {
       <div className="absolute top-1/3 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] md:w-[700px] h-[500px] md:h-[700px] bg-clay/15 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Static fallback image for HeroScene */}
-      <div className="absolute inset-y-0 right-0 w-full lg:w-[60%] opacity-25 pointer-events-none overflow-hidden">
+      <div className="absolute inset-y-0 right-0 w-full lg:w-[60%] opacity-40 lg:opacity-25 pointer-events-none overflow-hidden">
         <Image
           src="/images/hero-fallback.webp"
           alt="Sculptural silk form"

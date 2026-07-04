@@ -38,8 +38,11 @@ export default function HeroScene({ className }: HeroSceneProps) {
     () => false
   );
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)", true);
+  // ponytail: skip WebGL below lg — the 82k-tri noise shader saturates phone GPUs
+  // while the canvas sits at 45% opacity over the static fallback image anyway
+  const isMobile = useMediaQuery("(max-width: 1023px)", true);
 
-  if (!webglOk || reduced) {
+  if (!webglOk || reduced || isMobile) {
     return null;
   }
 
