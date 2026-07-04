@@ -37,13 +37,13 @@ export function Footer({
               About
             </TransitionLink>
             <TransitionLink
-              href="/#services"
+              href="/services"
               className="text-sm text-bone/80 hover:text-bone transition-colors"
             >
               Services
             </TransitionLink>
             <TransitionLink
-              href="/#products"
+              href="/products"
               className="text-sm text-bone/80 hover:text-bone transition-colors"
             >
               Products
@@ -55,13 +55,13 @@ export function Footer({
               Promo
             </TransitionLink>
             <TransitionLink
-              href="/#location"
+              href="/location"
               className="text-sm text-bone/80 hover:text-bone transition-colors"
             >
               Location
             </TransitionLink>
             <TransitionLink
-              href="/#contact"
+              href="/contact"
               className="text-sm text-bone/80 hover:text-bone transition-colors"
             >
               Contact

@@ -62,7 +62,6 @@ export function PromoStrip({ promos }: { promos: Promo[] }) {
             key={`${promo.id}-${idx}`}
             className="text-ink text-sm tracking-wide inline-flex items-center gap-3 font-body"
           >
-            <span className="text-clay text-xs">✳</span>
             <span className="font-medium">{promo.title}</span>
             <span>—</span>
             <span>{promo.discountLabel}</span>
