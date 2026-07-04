@@ -39,7 +39,7 @@ float snoise(vec3 v){
   float n_ = 0.142857142857;
   vec3  ns = n_ * D.wyz - D.xzx;
 
-  vec4 j = p - 49.0 * floor(p * ns.z.xxxx);
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
 
   vec4 x_ = floor(j * ns.z);
   vec4 y_ = floor(j - 7.0 * x_ );
@@ -79,13 +79,13 @@ vec3 getDisplacedPosition(vec3 p) {
   vec3 pNormal = normalize(p);
   
   // Layered simplex noise for organic, silk-like undulation
-  float n1 = snoise(p * 0.75 + vec3(t, t * 0.8, -t * 0.5));
-  float n2 = snoise(p * 1.5 - vec3(-t * 0.6, t, t * 0.7)) * 0.5;
-  float n3 = snoise(p * 3.0 + vec3(t * 0.4, -t * 0.5, t * 0.6)) * 0.25;
-  float totalNoise = (n1 + n2 + n3) / 1.75;
-  
-  // Gentle displacement (~0.35)
-  return p + pNormal * (totalNoise * 0.35);
+  float n1 = snoise(p * 0.38 + vec3(t, t * 0.8, -t * 0.5));
+  float n2 = snoise(p * 0.85 - vec3(-t * 0.6, t, t * 0.7)) * 0.45;
+  float n3 = snoise(p * 1.6 + vec3(t * 0.4, -t * 0.5, t * 0.6)) * 0.12;
+  float totalNoise = (n1 + n2 + n3) / 1.57;
+
+  // Gentle low-frequency displacement — silk/dune, not rock
+  return p + pNormal * (totalNoise * 0.5);
 }
 
 void main() {
@@ -162,28 +162,31 @@ export function SilkForm() {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
 
-  const uniformsRef = useRef({
-    uTime: { value: 0 },
-    uOpacity: { value: 1.0 },
-    uBoneColor: { value: new THREE.Color("#efe7db") },
-    uClayColor: { value: new THREE.Color("#b08968") },
-  });
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uOpacity: { value: 1.0 },
+      uBoneColor: { value: new THREE.Color("#efe7db") },
+      uClayColor: { value: new THREE.Color("#b08968") },
+    }),
+    []
+  );
 
   const material = useMemo(() => {
     return new THREE.ShaderMaterial({
       vertexShader: vertexShaderSource,
       fragmentShader: fragmentShaderSource,
-      uniforms: uniformsRef.current,
+      uniforms,
       transparent: true,
       side: THREE.FrontSide,
     });
-  }, []);
+  }, [uniforms]);
 
   useFrame((state, delta) => {
     if (!groupRef.current || !meshRef.current) return;
 
     // Zero per-frame allocations: mutate uniform values directly
-    uniformsRef.current.uTime.value = state.clock.getElapsedTime();
+    uniforms.uTime.value = state.clock.getElapsedTime();
 
     const lerpFactor = Math.min(1, delta * 3.5);
 
@@ -237,8 +240,8 @@ export function SilkForm() {
       lerpFactor
     );
 
-    uniformsRef.current.uOpacity.value = THREE.MathUtils.lerp(
-      uniformsRef.current.uOpacity.value,
+    uniforms.uOpacity.value = THREE.MathUtils.lerp(
+      uniforms.uOpacity.value,
       targetOpacity,
       lerpFactor
     );
@@ -246,7 +249,13 @@ export function SilkForm() {
 
   return (
     <group ref={groupRef}>
-      <mesh ref={meshRef} material={material}>
+      {/* non-uniform scale + slight tilt: sculptural lozenge, not a ball */}
+      <mesh
+        ref={meshRef}
+        material={material}
+        scale={[1.05, 0.72, 0.8]}
+        rotation={[0.35, 0, -0.25]}
+      >
         <icosahedronGeometry args={[1.6, 64]} />
       </mesh>
     </group>

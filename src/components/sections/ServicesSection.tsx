@@ -14,8 +14,11 @@ if (typeof window !== "undefined") {
 }
 
 function formatIdr(price: number): string {
-  const inThousands = Math.round(price / 1000);
-  return `IDR ${inThousands}K`;
+  if (price >= 1_000_000) {
+    const m = price / 1_000_000;
+    return `IDR ${Number.isInteger(m) ? m : m.toFixed(1)}M`;
+  }
+  return `IDR ${Math.round(price / 1000)}K`;
 }
 
 export function ServicesSection({ services }: { services: Service[] }) {

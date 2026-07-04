@@ -1,63 +1,45 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import { Canvas } from "@react-three/fiber";
 import { SilkForm } from "./SilkForm";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 interface HeroSceneProps {
   className?: string;
 }
 
+let webglChecked = false;
+let webglAvailable = false;
 function checkWebGLAvailability(): boolean {
-  if (typeof window === "undefined") return false;
+  if (webglChecked) return webglAvailable;
+  webglChecked = true;
   try {
     const canvas = document.createElement("canvas");
-    return !!(
+    webglAvailable = !!(
       window.WebGLRenderingContext &&
       (canvas.getContext("webgl") ||
         canvas.getContext("experimental-webgl") ||
         canvas.getContext("webgl2"))
     );
   } catch {
-    return false;
+    webglAvailable = false;
   }
+  return webglAvailable;
 }
 
+const noopSubscribe = () => () => {};
+
 export default function HeroScene({ className }: HeroSceneProps) {
-  const [canRender, setCanRender] = useState(false);
+  // SSR renders null; client hydrates then flips on — no mismatch, no setState-in-effect
+  const webglOk = useSyncExternalStore(
+    noopSubscribe,
+    checkWebGLAvailability,
+    () => false
+  );
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)", true);
 
-  useEffect(() => {
-    if (!checkWebGLAvailability()) {
-      setCanRender(false);
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    const updateRenderState = (matches: boolean) => {
-      setCanRender(!matches);
-    };
-
-    updateRenderState(mediaQuery.matches);
-
-    const handleMediaChange = (event: MediaQueryListEvent | MediaQueryList) => {
-      updateRenderState("matches" in event ? event.matches : mediaQuery.matches);
-    };
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleMediaChange as (e: MediaQueryListEvent) => void);
-      return () => {
-        mediaQuery.removeEventListener("change", handleMediaChange as (e: MediaQueryListEvent) => void);
-      };
-    } else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handleMediaChange as (e: MediaQueryListEvent) => void);
-      return () => {
-        mediaQuery.removeListener(handleMediaChange as (e: MediaQueryListEvent) => void);
-      };
-    }
-  }, []);
-
-  if (!canRender) {
+  if (!webglOk || reduced) {
     return null;
   }
 

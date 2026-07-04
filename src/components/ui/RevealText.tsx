@@ -23,8 +23,9 @@ export function RevealText({
   delay?: number;
   y?: number;
 }) {
-  const containerRef = useRef<any>(null);
-  const Component = as as any;
+  const containerRef = useRef<HTMLElement | null>(null);
+  // cast to a concrete tag so React 19's ElementType union doesn't collapse props to never
+  const Component = as as "div";
 
   useGSAP(
     () => {
@@ -84,8 +85,12 @@ export function RevealText({
     { scope: containerRef }
   );
 
+  // dynamic element: cast props once so TS doesn't collapse the union to never
   return (
-    <Component ref={containerRef} className={className}>
+    <Component
+      ref={containerRef as React.Ref<HTMLDivElement>}
+      className={className}
+    >
       {children}
     </Component>
   );

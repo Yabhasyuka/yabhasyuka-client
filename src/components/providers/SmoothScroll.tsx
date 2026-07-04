@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { ReactLenis, LenisRef } from "lenis/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,16 +12,8 @@ if (typeof window !== "undefined") {
 }
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
-  const [isReduced, setIsReduced] = useState(false);
+  const isReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const lenisRef = useRef<LenisRef>(null);
-
-  useEffect(() => {
-    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setIsReduced(mql.matches);
-    const handler = () => setIsReduced(mql.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
 
   useGSAP(() => {
     if (isReduced) return;

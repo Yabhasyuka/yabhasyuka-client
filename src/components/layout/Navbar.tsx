@@ -34,13 +34,20 @@ export function Navbar() {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         if (!navRef.current) return;
-        gsap.from(navRef.current, {
-          y: -20,
-          opacity: 0,
-          duration: 1,
-          ease: "power3.out",
-          delay: 1,
-        });
+        // fromTo + immediateRender:false so a killed tween can never leave the nav hidden
+        gsap.fromTo(
+          navRef.current,
+          { y: -20, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 1,
+            ease: "power3.out",
+            delay: 0.6,
+            immediateRender: false,
+            clearProps: "all",
+          }
+        );
       });
     },
     { scope: navRef }
