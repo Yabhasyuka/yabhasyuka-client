@@ -13,11 +13,11 @@ export function Navbar() {
 
   const navLinks = [
     { label: "About", href: "/#about" },
-    { label: "Services", href: "/#services" },
-    { label: "Products", href: "/#products" },
+    { label: "Services", href: "/services" },
+    { label: "Products", href: "/products" },
     { label: "Promo", href: "/promo" },
-    { label: "Location", href: "/#location" },
-    { label: "Contact", href: "/#contact" },
+    { label: "Location", href: "/location" },
+    { label: "Contact", href: "/contact" },
   ];
 
   useEffect(() => {
