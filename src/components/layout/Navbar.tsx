@@ -53,6 +53,15 @@ export function Navbar() {
     { scope: navRef }
   );
 
+  useGSAP(() => {
+    if (mobileMenuRef.current) {
+      // y: 0 clears the px offset GSAP parses from the SSR inline transform
+      // (same trap as TransitionProvider) — otherwise the open tween's
+      // yPercent: 0 is a no-op and the menu fades in offscreen
+      gsap.set(mobileMenuRef.current, { y: 0, yPercent: -100 });
+    }
+  }, []);
+
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
