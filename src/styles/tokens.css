@@ -1,0 +1,22 @@
+/* Yabhasyuka brand tokens — PLACEHOLDER until brand identity is delivered.
+   Swap values here only; nothing else in the codebase hardcodes brand color/type.
+   See docs/HANDOVER.md § Brand token swap. */
+:root {
+  /* color */
+  --color-bone: #f5f1ea; /* base background — warm bone/sand */
+  --color-bone-deep: #ece5da; /* raised surfaces on bone */
+  --color-ink: #211e1a; /* warm ink charcoal — text, dark sections */
+  --color-ink-soft: #575049; /* secondary text on bone */
+  --color-clay: #b08968; /* warm clay accent */
+  --color-clay-deep: #946b4f; /* hover/pressed clay */
+  --color-linen: #faf8f4; /* lightest surface, cards on bone */
+
+  /* type (families loaded via next/font in src/app/layout.tsx) */
+  --font-display: var(--font-marcellus); /* inscriptional roman — headlines */
+  --font-body: var(--font-figtree); /* quiet humanist sans — body, UI */
+
+  /* motion */
+  --ease-breath: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-slow: 1.2s;
+  --dur-med: 0.8s;
+}
