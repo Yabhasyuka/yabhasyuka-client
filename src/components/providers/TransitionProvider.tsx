@@ -29,15 +29,31 @@ export default function TransitionProvider({
   const pathname = usePathname();
   const lenis = useLenis();
   const overlayRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
   const isTransitioning = useRef(false);
   const prevPathname = useRef(pathname);
   const safetyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 110 (not 100) so the curved lips extending past the panel stay off-screen at rest
+  const HIDDEN_BELOW = 110;
+  const HIDDEN_ABOVE = -110;
+
   useGSAP(() => {
     if (overlayRef.current) {
-      gsap.set(overlayRef.current, { yPercent: 100 });
+      // y: 0 clears the px offset GSAP parses from the SSR inline transform
+      gsap.set(overlayRef.current, { y: 0, yPercent: HIDDEN_BELOW });
     }
   }, []);
+
+  const resetOverlay = () => {
+    if (overlayRef.current) {
+      gsap.set(overlayRef.current, { y: 0, yPercent: HIDDEN_BELOW });
+    }
+    if (textRef.current) {
+      gsap.set(textRef.current, { opacity: 0, y: 24 });
+    }
+    isTransitioning.current = false;
+  };
 
   const clearSafetyTimer = () => {
     if (safetyTimer.current) {
@@ -102,24 +118,25 @@ export default function TransitionProvider({
       safetyTimer.current = setTimeout(() => {
         if (isTransitioning.current && overlayRef.current) {
           gsap.to(overlayRef.current, {
-            yPercent: -100,
-            duration: 0.7,
-            onComplete: () => {
-              gsap.set(overlayRef.current, { yPercent: 100 });
-              isTransitioning.current = false;
-            },
+            yPercent: HIDDEN_ABOVE,
+            duration: 0.9,
+            ease: "power4.inOut",
+            onComplete: resetOverlay,
           });
         }
       }, 3500);
 
-      gsap.to(overlayRef.current, {
-        yPercent: 0,
-        duration: 0.55,
-        ease: "power3.inOut",
-        onComplete: () => {
-          router.push(href);
-        },
-      });
+      const tl = gsap.timeline({ defaults: { ease: "power4.inOut" } });
+      tl.to(overlayRef.current, { yPercent: 0, duration: 0.9 });
+      if (textRef.current) {
+        tl.fromTo(
+          textRef.current,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          "-=0.45"
+        );
+      }
+      tl.call(() => router.push(href));
     },
     [pathname, router, lenis]
   );
@@ -154,18 +171,20 @@ export default function TransitionProvider({
 
       if (isTransitioning.current && overlayRef.current) {
         clearSafetyTimer();
-        gsap.to(overlayRef.current, {
-          yPercent: -100,
-          duration: 0.7,
-          delay: 0.1,
-          ease: "power3.inOut",
-          onComplete: () => {
-            if (overlayRef.current) {
-              gsap.set(overlayRef.current, { yPercent: 100 });
-            }
-            isTransitioning.current = false;
-          },
-        });
+        const tl = gsap.timeline({ delay: 0.15, onComplete: resetOverlay });
+        if (textRef.current) {
+          tl.to(textRef.current, {
+            opacity: 0,
+            y: -24,
+            duration: 0.4,
+            ease: "power2.in",
+          });
+        }
+        tl.to(
+          overlayRef.current,
+          { yPercent: HIDDEN_ABOVE, duration: 0.9, ease: "power4.inOut" },
+          "-=0.25"
+        );
       }
     }
   }, [pathname, lenis]);
@@ -175,12 +194,28 @@ export default function TransitionProvider({
       {children}
       <div
         ref={overlayRef}
-        className="fixed inset-0 z-[95] bg-bone flex items-center justify-center pointer-events-none"
-        style={{ transform: "translate3d(0, 100%, 0)" }}
+        className="fixed inset-0 z-[95] pointer-events-none"
+        style={{ transform: "translate3d(0, 110%, 0)" }}
       >
-        <span className="font-display text-4xl md:text-6xl tracking-widest text-ink/20 uppercase select-none">
-          Yabhasyuka
-        </span>
+        {/* curved lip leading the panel as it sweeps up */}
+        <div
+          className="absolute left-[-10%] right-[-10%] h-[10vh] bg-bone"
+          style={{ top: "calc(-10vh + 1px)", borderRadius: "50% 50% 0 0 / 100% 100% 0 0" }}
+        />
+        <div className="absolute inset-0 bg-bone" />
+        {/* curved lip trailing the panel as it exits */}
+        <div
+          className="absolute left-[-10%] right-[-10%] h-[10vh] bg-bone"
+          style={{ bottom: "calc(-10vh + 1px)", borderRadius: "0 0 50% 50% / 0 0 100% 100%" }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span
+            ref={textRef}
+            className="font-display text-4xl md:text-6xl tracking-widest text-ink/20 uppercase select-none opacity-0"
+          >
+            Yabhasyuka
+          </span>
+        </div>
       </div>
     </TransitionContext.Provider>
   );
