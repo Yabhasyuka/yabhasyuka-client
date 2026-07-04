@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useLenis } from "lenis/react";
 import type { Service, BookingConfirmation } from "@/lib/api";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -47,6 +48,21 @@ export function BookingFlow({ services }: { services: Service[] }) {
   });
 
   const stepContainerRef = useRef<HTMLDivElement>(null);
+
+  // Every step change (next, back, change-service, confirm) routes through
+  // state.step, so this one effect scrolls the new step into view from the top.
+  const lenis = useLenis();
+  const prevStepRef = useRef(state.step);
+  useEffect(() => {
+    if (state.step === prevStepRef.current) return;
+    prevStepRef.current = state.step;
+    if (lenis) {
+      lenis.scrollTo(0);
+    } else {
+      // reduced motion: Lenis isn't mounted
+      window.scrollTo(0, 0);
+    }
+  }, [state.step, lenis]);
 
   useGSAP(
     () => {
