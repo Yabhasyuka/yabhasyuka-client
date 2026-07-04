@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Marcellus, Figtree } from "next/font/google";
 import "./globals.css";
+import SmoothScroll from "@/components/providers/SmoothScroll";
+import TransitionProvider from "@/components/providers/TransitionProvider";
 
 const marcellus = Marcellus({
   variable: "--font-marcellus",
@@ -29,7 +31,11 @@ export default function RootLayout({
       lang="en"
       className={`${marcellus.variable} ${figtree.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        <SmoothScroll>
+          <TransitionProvider>{children}</TransitionProvider>
+        </SmoothScroll>
+      </body>
     </html>
   );
 }
