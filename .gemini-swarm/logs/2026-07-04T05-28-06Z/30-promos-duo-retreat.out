@@ -1,9 +1,0 @@
-CRITICAL INSTRUCTION 1: You may have access to a variety of tools at your disposal. Some tools may be for a specific task such as 'view_file' (for viewing contents of a file). Others may be very broadly applicable such as the ability to run a command on a terminal. Always prioritize using the most specific tool you can for the task at hand. Here are some rules: (a) NEVER run cat inside a bash command to create a new file or append to an existing file. (b) ALWAYS use grep_search instead of running grep inside a bash command unless absolutely needed. (c) DO NOT use ls for listing, cat for viewing, grep for finding, sed for replacing.
-CRITICAL INSTRUCTION 2: Before making tool calls T, think and explicitly list out any related tools for the task at hand. You can only execute a set of tools T if all other tools in the list are either more generic or cannot be used for the task at hand.
-
-We need to generate an image based on the user's detailed specification.
-Related tools for generating images:
-- `generate_image`: This is the exact, specialized tool for creating images from text prompts. No other tool can generate images.
-
-We will invoke `generate_image` with the detailed prompt and aspect ratio 3:4 (the closest supported portrait aspect ratio to 4:5). Once the image is generated as an artifact, we will copy it to the requested target path.
-IMAGE_OK /Users/nathan/.claude/jobs/1d5e6f6d/tmp/img/promos/duo-retreat.png
